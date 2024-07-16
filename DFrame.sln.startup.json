@@ -23,6 +23,14 @@
         "ConsoleController": {},
         "MinimalEcho": {}
       }
+    },
+    "RunBoth + MinimalEcho + MinimalGrpc + MinimalMagicOnion": {
+      "Projects": {
+        "RunBoth": {},
+        "MinimalEcho": {},
+        "MinimumGrpc": {},
+        "MinimalMagicOnion": {}
+      }
     }
   }
 }
