@@ -1,6 +1,7 @@
 ﻿using DFrame.Controller;
 using DFrame.Internal;
 using MagicOnion.Serialization;
+using MagicOnion.Serialization.MessagePack;
 using MagicOnion.Server;
 using MagicOnion.Server.Diagnostics;
 using MessagePack;
@@ -34,40 +35,39 @@ public static class DFrameControllerWebApplicationBuilderExtensions
 
     static async Task RunDFrameControllerAsync(WebApplicationBuilder appBuilder, DFrameControllerOptions options, Action<WebHostBuilderContext, DFrameControllerOptions> configureOptions)
     {
-        appBuilder.WebHost.ConfigureServices((WebHostBuilderContext ctx, IServiceCollection services) =>
+        var services = appBuilder.Services;
+
+        services.AddGrpc();
+        services.AddMagicOnion(x =>
         {
-            services.AddGrpc();
-            services.AddMagicOnion(x =>
-            {
-                // Should use same options between DFrame.Controller(this) and DFrame.Worker
-                x.MessageSerializer = MessagePackMagicOnionSerializerProvider.Default;
-            });
-            services.AddSingleton<IMagicOnionLogger, MagicOnionLogToLogger>();
-
-            services.AddRazorPages()
-                .ConfigureApplicationPartManager(manager =>
-                {
-                    // import libraries razor pages
-                    var assembly = typeof(DFrameControllerWebApplicationBuilderExtensions).Assembly;
-                    var assemblyPart = new CompiledRazorAssemblyPart(assembly);
-                    manager.ApplicationParts.Add(assemblyPart);
-                });
-
-            services.AddServerSideBlazor();
-
-            // DFrame Options
-            services.TryAddSingleton<DFrameControllerExecutionEngine>();
-            services.TryAddSingleton<DFrameControllerLogBuffer>();
-            services.AddSingleton<ILoggerProvider, DFrameControllerLoggerProvider>();
-            services.AddScoped<LocalStorageAccessor>();
-            configureOptions(ctx, options);
-            services.AddSingleton(options);
-
-            // If user sets custom provdier, use it.
-            services.TryAddSingleton<IExecutionResultHistoryProvider, InMemoryExecutionResultHistoryProvider>();
-
-            services.AddMessagePipe();
+            // Should use same options between DFrame.Controller(this) and DFrame.Worker
+            x.MessageSerializer = MessagePackMagicOnionSerializerProvider.Default;
         });
+
+        services.AddRazorPages()
+            .ConfigureApplicationPartManager(manager =>
+            {
+                // import libraries razor pages
+                var assembly = typeof(DFrameControllerWebApplicationBuilderExtensions).Assembly;
+                var assemblyPart = new CompiledRazorAssemblyPart(assembly);
+                manager.ApplicationParts.Add(assemblyPart);
+            });
+
+        services.AddServerSideBlazor();
+
+        // DFrame Options
+        services.TryAddSingleton<DFrameControllerExecutionEngine>();
+        services.TryAddSingleton<DFrameControllerLogBuffer>();
+        services.AddSingleton<ILoggerProvider, DFrameControllerLoggerProvider>();
+        services.AddScoped<LocalStorageAccessor>();
+
+        configureOptions(new WebHostBuilderContext { HostingEnvironment = appBuilder.Environment, Configuration = appBuilder.Configuration }, options);
+        services.AddSingleton(options);
+
+        // If user sets custom provdier, use it.
+        services.TryAddSingleton<IExecutionResultHistoryProvider, InMemoryExecutionResultHistoryProvider>();
+
+        services.AddMessagePipe();
 
         var app = appBuilder.Build();
 

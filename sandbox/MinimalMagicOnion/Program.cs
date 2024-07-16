@@ -32,16 +32,16 @@ app.Run();
 
 public class EchoService : ServiceBase<IEchoService>, IEchoService
 {
-    public UnaryResult<Nil> Echo(string message)
+    public UnaryResult Echo(string message)
     {
-        return UnaryResult(Nil.Default);
+        return new UnaryResult();
     }
 }
 
 // unary
 public interface IEchoService : IService<IEchoService>
 {
-    UnaryResult<Nil> Echo(string message);
+    UnaryResult Echo(string message);
 }
 
 // streaming hub

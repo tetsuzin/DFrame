@@ -51,7 +51,7 @@ namespace DFrame.Controller
             this.router = router;
         }
 
-        public IDisposable BeginScope<TState>(TState state)
+        public IDisposable? BeginScope<TState>(TState state) where TState : notnull
         {
             return NilDisposable.Instance;
         }
