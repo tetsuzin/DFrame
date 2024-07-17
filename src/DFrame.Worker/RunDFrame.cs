@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using ConsoleAppFramework;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.Threading.Tasks;
@@ -27,22 +28,22 @@ namespace DFrame
             return RunDFrameWorkerAsyncCore(hostBuilder, new DFrameWorkerOptions(), configureOptions);
         }
 
-        static async Task RunDFrameWorkerAsyncCore(IHostBuilder hostBuilder, DFrameWorkerOptions options, Action<HostBuilderContext, DFrameWorkerOptions> configureOptions)
+        static async Task RunDFrameWorkerAsyncCore(IHostBuilder builder, DFrameWorkerOptions options, Action<HostBuilderContext, DFrameWorkerOptions> configureOptions)
         {
-            hostBuilder = hostBuilder
+            builder
                 .ConfigureServices((hostContext, services) =>
                 {
                     configureOptions(hostContext, options);
                     services.AddSingleton(options);
                 });
 
-            var app = ConsoleApp.CreateFromHostBuilder(hostBuilder, new string[0], x =>
-            {
-                // this affects indesirable result so disable auto replace.
-                x.ReplaceToUseSimpleConsoleLogger = false;
-            });
-            app.AddCommands<DFrameWorkerApp>();
-            await app.RunAsync();
+            ConsoleApp.ServiceProvider = builder.Build().Services;
+
+            var app = ConsoleApp.Create();
+            app.Add<DFrameWorkerApp>();
+
+            var args = Environment.GetCommandLineArgs()[1..];
+            await app.RunAsync(args);
         }
     }
 }

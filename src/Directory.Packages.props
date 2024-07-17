@@ -3,7 +3,7 @@
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     </PropertyGroup>
     <ItemGroup>
-        <PackageVersion Include="ConsoleAppFramework" Version="4.0.6" />
+        <PackageVersion Include="ConsoleAppFramework" Version="5.2.1" />
         <PackageVersion Include="MagicOnion" Version="5.1.0" />
         <PackageVersion Include="MagicOnion.Client" Version="5.1.0" />
         <PackageVersion Include="MessagePack" Version="2.3.85" />
